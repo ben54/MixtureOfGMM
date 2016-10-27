@@ -22,13 +22,14 @@ object Main {
  
     //sample from mixture
     val numBags = 10000
-    val bagSize = 3
+    val bagSize = 10
     val samples: Vector[(Int, Vector[Double])] = mixtureOfGmms.draw(numBags, bagSize)
     val actualPredicted: Vector[(Int,Int)] = samples.map(classData => (classData._1,mixtureOfGmms.classify(classData._2)))
     val accuracy: Double = actualPredicted.map(ap => if (ap._1 == ap._2) 1 else 0).sum.toDouble / actualPredicted.length
     println("Accuracy: " + accuracy)
     
   }
+  val t = "Hello"
 }
 
 class GMM(alpha: Vector[Double], means: Vector[Double], std: Vector[Double]) {
@@ -37,6 +38,7 @@ class GMM(alpha: Vector[Double], means: Vector[Double], std: Vector[Double]) {
   val numComponents = alpha.length
   val components: Vector[Gaussian] = means.zip(std).map(meanStd => new Gaussian(meanStd._1,meanStd._2))
   def f(x: Double): Double = {
+//    val t = alpha.zip(components)
     alpha.zip(components).map(alphaComponent => alphaComponent._1 * alphaComponent._2.pdf(x)).sum
   }
   def draw: Double = {
@@ -67,6 +69,7 @@ class MixtureOfGMMs(prior: Vector[Double], alphas: Vector[Vector[Double]], means
   
   def classify(bag: Vector[Double]): Int = {
     //for each GMM, calculate log likelihood of data under that distribution * prior and max over this
+    val t = GMMs.zip(prior).map(gmmPrior => gmmPrior._1.logProbDataAndClass(bag, gmmPrior._2)).zipWithIndex.maxBy(x => x._1)._2
     GMMs.zip(prior).map(gmmPrior => gmmPrior._1.logProbDataAndClass(bag, gmmPrior._2)).zipWithIndex.maxBy(_._1)._2
   }
 }
